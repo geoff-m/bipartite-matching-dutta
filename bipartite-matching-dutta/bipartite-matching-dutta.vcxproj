@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BipartiteMatcher.cpp" />
     <ClCompile Include="hetero_working.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

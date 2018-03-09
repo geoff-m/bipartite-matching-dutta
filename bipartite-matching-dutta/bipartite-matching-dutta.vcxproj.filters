@@ -21,6 +21,9 @@
     <ClCompile Include="hetero_working.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BipartiteMatcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header.h">

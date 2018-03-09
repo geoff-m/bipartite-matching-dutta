@@ -2,31 +2,13 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <stdlib.h>
-#include <fstream>
-#include <conio.h>
-#include <random>
-#include <ctime>
-#include <time.h>
 #include <iostream>
-#include <cstdlib>
-#include <fstream>
 #include <sstream>
-#include <algorithm> 
-#include <string>
+#include <algorithm>
 #include <vector>
-#include <iostream>
-#include <cstdlib>
-#include <fstream>
-#include <algorithm> 
-#include <string>
 
 #define ROBOT_COUNT 2 //number of agents (or nodes; #agents = #nodes)
 #define LOCATION_COUNT ROBOT_COUNT * 2 + 1
-
-#define MAX_STEPS 1000
-#define arena_length 10
-#define arena_width 10
 
 int weight[ROBOT_COUNT][3];
 
@@ -103,48 +85,6 @@ void BipartiteMatcher::addAlternative2(bool isSelf, int x, int y, int cost)
 	}
 }
 
-//reading graph from file
-/**
-void read_Tgraph_from_file(std::string file_name) {
-	// Open the file:
-	std::ifstream fin(file_name);
-
-	// Declare variables:
-	int a, b, L;
-
-	// Ignore headers and comments:
-	while (fin.peek() == '%') fin.ignore(2048, '\n');
-
-	// Read defining parameters:
-	fin >> a >> b >> L;
-	//nodes = a+1;
-	//nodes = a+1;
-
-	// Read the data
-	for (int l = 0; l <= L; l++)
-	{
-		int m, n;
-		//double data;
-		fin >> m >> n;
-		std::vector<int> one_edge;
-		if (m != n) {
-			one_edge.push_back(m);
-			one_edge.push_back(n);
-			//matrix[(m-1) + (n-1)*M] = data;
-			target_graph.push_back(one_edge);
-		}
-		one_edge.clear();
-	}
-	//printf("\n Number of edges added in Target Graph: %d", target_graph.size());
-	fin.close();
-
-	//for(int i=0;i<target_graph.size();i++)
-	//printf("\n new edge -> %d -- %d", target_graph.at(i).at(0),target_graph.at(i).at(1));
-
-}
-*/
-
-
 int robotsMatched[LOCATION_COUNT]; // maps location ("column") to robot.
 
 void initialize() {
@@ -161,7 +101,7 @@ void display_matching() {
 	printf("\nrobot\tlocation\n");
 	for (int i = 0; i < ROBOT_COUNT; i++) {
 
-		printf("%d\t%d\n", i, matched_nodes[i]);
+		printf("%d\t\t%d\n", i, matched_nodes[i]);
 		//}
 		//}
 	}
@@ -354,7 +294,6 @@ Point BipartiteMatcher::getResult(int robot)
 	if (robot == 1)
 	{
 		int choice = matched_nodes[OTHER_INDEX];
-		_ASSERT(choice < 2);
 
 		return Point(otheralts[choice][0], otheralts[choice][1]);
 	}

@@ -217,7 +217,7 @@ BipartiteMatcher::BipartiteMatcher()
 }
 
 //Manne's algorithm implementation
-void solve_Manne() {
+int solve_Manne() {
 	int total_cost = 0;
 	int total_weight = 0;
 	int cardinality = 0;
@@ -276,12 +276,19 @@ void solve_Manne() {
 	printf("\n End Manne's algorithm. All matching done (F.MANNE) -- total cost is: %d with cardinality %d\n", total_cost,cardinality);
 	display_matching();
 
+
 	//printf("\n Time taken for Manne's Algo: %.2f ms.\n", (double)(tEnd_Manne - tStart)*1000/CLOCKS_PER_SEC);
+	return total_cost;
 }
 
 void BipartiteMatcher::solve()
 {
-	solve_Manne();
+	totalCost = solve_Manne();
+}
+
+int BipartiteMatcher::getTotalCost() const
+{
+	return totalCost;
 }
 
 Point BipartiteMatcher::getResult(int robot)

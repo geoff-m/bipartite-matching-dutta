@@ -24,10 +24,15 @@ private:
 	int myalts[3][2];
 	int otheralts[2][2];
 
+	int totalCost;
+
 public:
 	BipartiteMatcher();
 
 	void solve();
+
+	// Gets the total cost (weight) of the computed matching.
+	int getTotalCost() const;
 
 	// Add own robot's original location.
 	void addSelf(int x, int y, int cost);

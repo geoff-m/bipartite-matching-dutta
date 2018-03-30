@@ -43,6 +43,11 @@ void BipartiteMatcher::addSelf(int x, int y, int cost)
 	weight[SELF_INDEX][ORIGINAL_LOCATION] = cost;
 }
 
+// todo: start using cell IDs as columns in bipartite matching's weight array
+// id = x * COLUMN_COUNT + y; // something like this
+// x = floor(id / COLUMN_COUNT);
+// y = id % COLUMN_COUNT;
+
 void BipartiteMatcher::addAlternative1(bool isSelf, int x, int y, int cost)
 {
 	if (isSelf)

@@ -21,8 +21,6 @@ public:
 class BipartiteMatcher
 {
 private:
-	int myalts[3][2];
-	int otheralts[2][2];
 
 	int totalCost;
 

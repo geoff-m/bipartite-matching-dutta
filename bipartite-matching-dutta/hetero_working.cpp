@@ -24,38 +24,36 @@ static Point toXY(int cellID)
 	return Point(x, y);
 }
 
-void BipartiteMatcher::addSelf(int x, int y, int cost)
+void BipartiteMatcher::addSelf(int myId, int x, int y, int cost)
 {
-	// Set my position.
-	agent_position[SELF_INDEX][0] = x;
-	agent_position[SELF_INDEX][1] = y;
-
 	// Set the cost of this alternative.
     int id = toCellID(x, y);
-	weight[SELF_INDEX][id] = cost;
+	weight[myId][id] = cost;
 	printf("Matcher %d: Added self (%d, %d) cost=%d\n", matcherId, x, y, cost);
 	robotAtLocation[id] = -1;
 }
 
-void BipartiteMatcher::addAlternative1(bool isSelf, int x, int y, int cost)
+void BipartiteMatcher::addAlternative1(int robotId, int x, int y, int cost)
 {
     int id = toCellID(x, y);
-	if (isSelf)
+    weight[robotId][id] = cost;
+    printf("Matcher %d: Added alt for robot %d: (%d, %d) cost=%d\n", matcherId, robotId, x, y, cost);
+	/*if (isSelf)
 	{
 		// Store the weight of this alternative.
 		weight[SELF_INDEX][id] = cost;
-        printf("Matcher %d: Added self alt1 (%d, %d) cost=%d\n", matcherId, x, y, cost);
+        printf("Matcher %d: Added self alt (%d, %d) cost=%d\n", matcherId, x, y, cost);
 	} else {
 		// Store the weight of this alternative.
 		weight[OTHER_INDEX][id] = cost;
-        printf("Matcher %d: Added other alt1 (%d, %d) cost=%d\n", matcherId, x, y, cost);
-	}
+        printf("Matcher %d: Added other alt (%d, %d) cost=%d\n", matcherId, x, y, cost);
+	}*/
     robotAtLocation[id] = -1;
 }
 
-void BipartiteMatcher::addAlternative2(bool isSelf, int x, int y, int cost)
+void BipartiteMatcher::addAlternative2(int robotId, int x, int y, int cost)
 {
-    addAlternative1(isSelf, x, y, cost);
+    addAlternative1(robotId, x, y, cost);
 }
 
 void BipartiteMatcher::display_matching() const {
@@ -71,7 +69,7 @@ void BipartiteMatcher::displayWeights() const
 {
 	for (int r = 0; r < ROBOT_COUNT; ++r)
 	{
-        printf("Matcher %d: Robot %s", matcherId, r == 0 ? "self" : "other");
+        printf("Matcher %d: Robot %d", matcherId, r);
         for (const auto& kvp : weight[r])
         {
             Point p = toXY(kvp.first);
@@ -102,7 +100,7 @@ bool BipartiteMatcher::isMatched_row(int robot) const
 // Is this location matched to any robot?
 bool BipartiteMatcher::isMatched_col(int spot) const
 {
-    return robotAtLocation.count(spot) > 0;
+    return robotAtLocation.count(spot) > 0 && robotAtLocation.at(spot) != -1;
 }
 
 int BipartiteMatcher::findBestSpot(int robot) const {
@@ -195,69 +193,55 @@ int BipartiteMatcher::newFindBestRobot(int spot) const {
 
 //Manne's algorithm implementation
 int BipartiteMatcher::solve_Manne() {
-	int total_cost = 0;
 	int total_weight = 0;
 	int cardinality = 0;
+
+    printf("Begin solve %d\n", matcherId);
 
 	//step 1: Initial 2-way matching.
 	for (int row = 0; row < ROBOT_COUNT; row++) {// 'i' indices are used to indicate the left vertices
 		int best_matched_col = findBestSpot(row);
 		if (findBestRobot(best_matched_col) == row) {
 		    Point p = toXY(best_matched_col);
-			printf("\nPass one: Mutual best match: robot %s -> cell (%d, %d)\n", row == 0 ? "self" : "other", p.X, p.Y);
-
-			total_cost = total_cost + weight[row][best_matched_col];
+			printf("Pass one: Mutual best match: robot %d -> cell (%d, %d)\n", row, p.X, p.Y);
 			
 			// Record matching.
 			matching[row] = best_matched_col;
 			robotAtLocation[best_matched_col] = row;
 			
-			total_weight = total_weight + weight[row][best_matched_col];
+			total_weight += weight[row][best_matched_col];
 			cardinality++;
 		}
 	}
 
-	printf("Finished initial pass of matching algo.\n");
-	display_matching();
-	printf("\n Cardinality here is: %d", cardinality);
+	//printf("Finished initial pass of matching algo.\n");
+	//display_matching();
+	//printf("\n Cardinality here is: %d", cardinality);
 
-	int last_card = cardinality;
-	while (cardinality <= ROBOT_COUNT) {
+	while (cardinality < ROBOT_COUNT) {
 		for (int row = 0; row < ROBOT_COUNT; row++) {
 			if (!isMatched_row(row)) { // this means that this row is not matched so far.
 				int my_best_col = newFindBestSpot(row);
 				if (newFindBestRobot(my_best_col) == row) {
                     Point p = toXY(my_best_col);
-                    printf("\nPass two: Best match: robot %s -> cell (%d, %d)\n", row == 0 ? "self" : "other", p.X, p.Y);
+                    printf("\nPass two: Best match: robot %d -> cell (%d, %d)\n", row, p.X, p.Y);
 
-                    total_cost = total_cost + weight[row][my_best_col];
-					
 					// Record matching.
 					matching[row] = my_best_col;
 					robotAtLocation[my_best_col] = row;
 					
-					total_weight = total_weight + weight[row][my_best_col];
+					total_weight += weight[row][my_best_col];
 					cardinality++;
-					if (cardinality > ROBOT_COUNT)
-						break;
 				}
 			}
 		}
-		if (cardinality == last_card)
-			break;
-		else
-			last_card = cardinality;
-
-		if (cardinality > ROBOT_COUNT)
-			break;
 	}
-	printf("\n At the end of Manne's algorithm, values of cardinality and nodes are: %d, %d\n", cardinality, ROBOT_COUNT);
-	//printf("\n End Manne's algorithm. All matching done (F.MANNE) -- total cost is: %d with cardinality %d\n", total_cost,cardinality);
+
 	display_matching();
 
+    printf("End solve %d. Cardinality = %d. Cost = %d.\n", matcherId, cardinality, total_weight);
 
-	//printf("\n Time taken for Manne's Algo: %.2f ms.\n", (double)(tEnd_Manne - tStart)*1000/CLOCKS_PER_SEC);
-	return total_cost;
+	return total_weight;
 }
 
 void BipartiteMatcher::solve()
@@ -270,16 +254,38 @@ int BipartiteMatcher::getTotalCost() const
 	return totalCost;
 }
 
-Point BipartiteMatcher::getResult(int robot)
+bool BipartiteMatcher::hasResultFor(int robotId)
+{
+    return matching.count(robotId) > 0;
+}
+
+Point BipartiteMatcher::getResult(int robotId)
 {
     int choice = -1;
-	if (robot == 0)
+    if (matching.count(robotId) == 0)
+    {
+        printf("Robot %d is not in the matching!\n", robotId);
+    } else {
+        choice = matching.at(robotId);
+    }
+
+	/*if (robot == 0)
 	{
-		choice = matching[SELF_INDEX];
+        if (matching.count(SELF_INDEX) == 0)
+        {
+            printf("Error: self-robot is not in the matching!\n");
+        } else {
+            choice = matching.at(SELF_INDEX);
+        }
 	}
 	if (robot == 1)
 	{
-		choice = matching[OTHER_INDEX];
-	}
+        if (matching.count(OTHER_INDEX) == 0)
+        {
+            printf("Error: other-robot is not in the matching!\n");
+        } else {
+            choice = matching.at(OTHER_INDEX);
+        }
+	}*/
     return toXY(choice);
 }

@@ -4,8 +4,9 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include "main.h" // for ROBOT_COUNT
 
-#define ROBOT_COUNT 2 //number of agents (or nodes; #agents = #nodes)
+//#define ROBOT_COUNT 2 //number of agents (or nodes; #agents = #nodes)
 // we use cell IDs as columns in bipartite matching's weight array
 
 #define INFINITE_COST 99999
